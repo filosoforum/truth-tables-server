@@ -1,7 +1,46 @@
-from typing import Any
+from typing import Any, Type, TypeVar
 
 from dataclasses import dataclass
 from enum import Enum
+
+from sqlalchemy import Column, Table, ForeignKey
+from sqlalchemy.types import TypeEngine
+from sqlalchemy.orm import DeclarativeBase, Mapped
+
+from hashlib import sha256
+
+_ColType = TypeVar("_ColType")
+
+class TruthBase(DeclarativeBase):
+    pass
+
+def truth_table_factory(table_name: str):
+
+    def mapper_args_factory():
+        self.color = color
+  
+    def getColor(self):
+        return self.color
+  
+    return type(f'T_{table_name}', (TruthBase,), {
+        '__tablename__': f"t_{table_name}",
+        
+        'getColor': getColor,
+    })
+  
+  
+Apple = create_apple_class()
+appleObj = Apple('red')
+print(appleObj.getColor())
+
+class TruthTable(TruthBase):
+    __tablename__ = "TruthTable"
+    id = M
+
+class GlobalColumn(Column[_ColType]):
+
+    def __init__(self, col_name: str, col_type: _ColType) -> None:
+        
 
 
 class ColumnType(Enum):
@@ -13,18 +52,8 @@ class TableId:
     pass
 
 
-@dataclass
-class Column:
-    name: str
-    data_type: ColumnType
 
-
-@dataclass
-class FKColumn(Column):
-    associated_table_id: TableId
-
-
-class Table:
+class TruthTable:
     def __init__(self) -> None:
         self.columns = set({
             Column("name", ColumnType(0)), # eu
@@ -48,7 +77,7 @@ class Table:
 
 class TableBuilder:
     def __init__(self) -> None:
-        self.table = Table()
+        self.table = TruthTable()
 
     def addColumn(self, *args):
         self.table.setColumn(*args)
