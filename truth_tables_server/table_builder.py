@@ -47,19 +47,77 @@ class ColumnType(Enum):
     STRING = 0
     TIMESTAMP = 1
 
+type Name = str
+type Identifier = UUID | Name
 
-class TableId:
-    pass
+# metaclass
+@dataclass
+class Tradeable(): # base class
+    _id: Identifier
 
+# exemplos de propriedades interessantes
+class Fungible(ABC, Tradeable):
+    def __init__(self) -> None: pass
+
+    ???
+
+
+# definir a estrutura de dados mais apropriada para lidar com os fungibles
+# a ideia da bag é criar um contexto para que os fungibles se comportem como tal
+# ou seja, por exemplo... se eu faço o stash de dinheiro em uma bag que já contém
+# dinheiro, essas diferentes instancias de dinheiro, como objetos do python, deveriam
+# se tornar apenas uma coisa só.
+
+# e o UUID? o que acontece?
+@dataclass
+class Bag():
+    def __init__(self) -> None:
+        self._fungible_contents = {}
+        self._non_fungible_contents = {}
+
+    @property
+    def contents(self) -> set[Tradeable]:
+        bag = {}
+        bag.add(self._fungible_contents).add(self._non_fungible_contents)
+        return bag
+
+    def stash(self, new_tradeable: Tradeable) -> Self:
+        if not isinstance(new_tradeable, Fungible):
+            self.contents.add(new_tradeable)
+            return self
+
+        fungibles = [fungible.__class__ for fungible in self._fungible_contents]
+        
+        
+        if not self._does_fungible_exists(new_tradeable.__class__):
+            self.contents.add(new_tradeable)
+            return self
+
+        for content in self.contents:
+            if isinstance(new_tradeable, content.__class__):
+                content.aggregate(new_tradeable)
+                return self
+            else:
+                self.contents.add(new_tradeable)
+
+    def _does_fungible_exists(fungible_class) -> bool:
+        # verifica se a fungible class já está presente na bag
+        pass
+
+class Ticket(Tradeable):
+    ticket_id
+
+class Durable(Tradeable): pass
 
 
 class TruthTable:
     def __init__(self) -> None:
         self.columns = set({
-            Column("name", ColumnType(0)), # eu
-            Column("cost", ColumnType(0)), # o mundo
-            Column("datetime", ColumnType(1)) # e o tempo
-        }) 
+            Column("given", ColumnType(0)),    # sets of tradeables
+            Column("received", ColumnType(0)), # sets of tradeables
+            Column("when", ColumnType(1)),
+            Column("where", ColumnType(0))
+        })
         self.fk_columns = set()
         pass
 
